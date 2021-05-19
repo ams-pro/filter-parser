@@ -2,6 +2,7 @@ package filterparser
 
 import (
 	"bufio"
+	"errors"
 	"strings"
 )
 
@@ -12,7 +13,31 @@ type Node struct {
 	Parent *Node `json:"-"`
 }
 
-func ParseFilter(filter string) *Node {
+func (n *Node) Inorder() []string {
+	arr := []string{}
+	if n != nil {
+		arr = append(arr, n.Left.Inorder()...)
+
+		arr = append(arr, n.Token)
+
+		arr = append(arr, n.Right.Inorder()...)
+	}
+	return arr
+}
+
+func (n *Node) ReverseOrder() []string {
+	arr := []string{}
+	if n != nil {
+		arr = append(arr, n.Right.Inorder()...)
+
+		arr = append(arr, n.Token)
+
+		arr = append(arr, n.Left.Inorder()...)
+	}
+	return arr
+}
+
+func ParseFilter(filter string) (*Node, error) {
 	scanner := bufio.NewScanner(strings.NewReader(filter))
 	scanner.Split(bufio.ScanRunes)
 
@@ -21,13 +46,16 @@ func ParseFilter(filter string) *Node {
 	root := &Node{}
 
 	currentNode := root
-	vectorMode := false
+	sliceMode := false
 
 	for scanner.Scan() {
 		t := scanner.Text()
 
 		switch t {
 		case "(":
+			if sliceMode {
+				return nil, errors.New("Parse Error: Token not allowed")
+			}
 			currentNode.Token = token
 
 			newNode := &Node{
@@ -39,7 +67,7 @@ func ParseFilter(filter string) *Node {
 			currentNode = newNode
 			token = ""
 		case ",":
-			if vectorMode {
+			if sliceMode {
 				token += t
 				continue
 			}
@@ -59,6 +87,9 @@ func ParseFilter(filter string) *Node {
 
 			token = ""
 		case ")":
+			if sliceMode {
+				return nil, errors.New("Parse Error: Token not allowed")
+			}
 			if len(token) > 0 {
 				currentNode.Token = token
 			}
@@ -67,14 +98,14 @@ func ParseFilter(filter string) *Node {
 			token = ""
 
 		case "[":
-			vectorMode = true
+			sliceMode = true
 			token += t
 		case "]":
-			vectorMode = false
+			sliceMode = false
 			token += t
 		default:
 			token += t
 		}
 	}
-	return root
+	return root, nil
 }

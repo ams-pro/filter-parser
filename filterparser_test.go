@@ -127,7 +127,10 @@ func TestParseFilter(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			tree := filterparser.ParseFilter(tC.in)
+			tree, err := filterparser.ParseFilter(tC.in)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			b1, err := json.Marshal(tree)
 
