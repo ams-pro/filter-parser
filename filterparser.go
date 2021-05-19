@@ -13,14 +13,17 @@ type Node struct {
 	Parent *Node `json:"-"`
 }
 
-func (n *Node) Inorder() []string {
+type TapFunction func(node *Node)
+
+func (n *Node) Inorder(t TapFunction) []string {
 	arr := []string{}
 	if n != nil {
-		arr = append(arr, n.Left.Inorder()...)
+		arr = append(arr, n.Left.Inorder(t)...)
 
+		t(n)
 		arr = append(arr, n.Token)
 
-		arr = append(arr, n.Right.Inorder()...)
+		arr = append(arr, n.Right.Inorder(t)...)
 	}
 	return arr
 }
@@ -28,11 +31,11 @@ func (n *Node) Inorder() []string {
 func (n *Node) ReverseOrder() []string {
 	arr := []string{}
 	if n != nil {
-		arr = append(arr, n.Right.Inorder()...)
+		arr = append(arr, n.Right.ReverseOrder()...)
 
 		arr = append(arr, n.Token)
 
-		arr = append(arr, n.Left.Inorder()...)
+		arr = append(arr, n.Left.ReverseOrder()...)
 	}
 	return arr
 }
