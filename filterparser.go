@@ -15,15 +15,27 @@ type Node struct {
 
 type TapFunction func(node *Node)
 
-func (n *Node) Inorder(t TapFunction) []string {
+func (n *Node) Inorder() []string {
 	arr := []string{}
 	if n != nil {
-		arr = append(arr, n.Left.Inorder(t)...)
+		arr = append(arr, n.Left.Inorder()...)
+
+		arr = append(arr, n.Token)
+
+		arr = append(arr, n.Right.Inorder()...)
+	}
+	return arr
+}
+
+func (n *Node) InorderTap(t TapFunction) []string {
+	arr := []string{}
+	if n != nil {
+		arr = append(arr, n.Left.InorderTap(t)...)
 
 		t(n)
 		arr = append(arr, n.Token)
 
-		arr = append(arr, n.Right.Inorder(t)...)
+		arr = append(arr, n.Right.InorderTap(t)...)
 	}
 	return arr
 }
@@ -51,6 +63,7 @@ func ParseFilter(filter string) (*Node, error) {
 	currentNode := root
 	sliceMode := false
 
+	// [and, (, gt, (, ...] --> AST
 	for scanner.Scan() {
 		t := scanner.Text()
 
