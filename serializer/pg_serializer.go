@@ -2,11 +2,21 @@ package serializer
 
 import (
 	"strings"
-
-	"github.com/huandu/go-sqlbuilder"
 )
 
-func Parse(expr []string, sb *sqlbuilder.SelectBuilder) string {
+type WherableBuilder interface {
+	GreaterEqualThan(field string, value interface{}) string
+	GreaterThan(field string, value interface{}) string
+	LessEqualThan(field string, value interface{}) string
+	LessThan(field string, value interface{}) string
+	NotEqual(field string, value interface{}) string
+	Equal(field string, value interface{}) string
+	In(field string, value ...interface{}) string
+	Or(orExpr ...string) string
+	And(andExpr ...string) string
+}
+
+func Parse(expr []string, sb WherableBuilder) string {
 	where := []string{}
 	for i, e := range expr {
 		switch e {
