@@ -55,7 +55,7 @@ func parseMongo(filter bson.M, tree *filterparser.Node) (bson.M, error) {
 			return nil, ErrInvalidFilterValue
 		}
 		slice := parseSliceFromString(tree.Right.Token)
-		filter["$in"] = bson.M{tree.Left.Token: slice}
+		filter[tree.Left.Token] = bson.M{"$in": slice}
 	}
 	return filter, nil
 }
