@@ -18,7 +18,7 @@ func isNotEmpty(in string) bool {
 }
 
 func parseSliceFromString(in string) interface{} {
-	slice := strings.Split(in[2:len(in)-1], ",")
+	slice := strings.Split(in[1:len(in)-1], ",")
 
 	if len(slice) == 0 {
 		return nil
