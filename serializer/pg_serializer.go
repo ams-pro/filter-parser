@@ -4,6 +4,9 @@ import (
 	"strings"
 )
 
+type Postgres struct {
+}
+
 type WherableBuilder interface {
 	GreaterEqualThan(field string, value interface{}) string
 	GreaterThan(field string, value interface{}) string
@@ -16,7 +19,7 @@ type WherableBuilder interface {
 	And(andExpr ...string) string
 }
 
-func Parse(expr []string, sb WherableBuilder) string {
+func parsePostgres(expr []string, sb WherableBuilder) string {
 	where := []string{}
 	for i, e := range expr {
 		switch e {
@@ -60,11 +63,15 @@ func Parse(expr []string, sb WherableBuilder) string {
 			st1 := expr[:i]
 			st2 := expr[i+1:]
 
-			p1 := Parse(st1, sb)
-			p2 := Parse(st2, sb)
+			p1 := parsePostgres(st1, sb)
+			p2 := parsePostgres(st2, sb)
 			return sb.Or(p1, p2)
 		}
 	}
 
 	return sb.And(where...)
+}
+
+func (*Postgres) Parse(expr []string, sb WherableBuilder) string {
+	return parsePostgres(expr, sb)
 }
