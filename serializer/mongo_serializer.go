@@ -21,8 +21,8 @@ func parseSliceFromString(in string) interface{} {
 	in = strings.TrimSpace(in)
 	slice := strings.Split(in[1:len(in)-1], ",")
 
-	if len(slice) == 0 {
-		return nil
+	if len(slice) == 0 || len(slice[0]) == 0 {
+		return []interface{}{}
 	}
 
 	if _, err := strconv.ParseInt(strings.TrimSpace(slice[0]), 10, 64); err == nil {
@@ -56,9 +56,7 @@ func parseMongo(filter bson.M, tree *filterparser.Node) (bson.M, error) {
 			return nil, ErrInvalidFilterValue
 		}
 		slice := parseSliceFromString(tree.Right.Token)
-		if slice != nil {
-			filter[tree.Left.Token] = bson.M{"$in": slice}
-		}
+		filter[tree.Left.Token] = bson.M{"$in": slice}
 	case "and":
 		if tree.Left == nil && tree.Right == nil {
 			return nil, ErrInvalidFilterValue
